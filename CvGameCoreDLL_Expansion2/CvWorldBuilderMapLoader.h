@@ -7,6 +7,8 @@
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
+#include "ModdedDLL.h"
+
 #ifndef CIV5_WORLD_BUILDER_MAP_LOADER_H
 #define CIV5_WORLD_BUILDER_MAP_LOADER_H
 

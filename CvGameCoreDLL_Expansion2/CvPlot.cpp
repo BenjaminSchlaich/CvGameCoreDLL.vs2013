@@ -2168,6 +2168,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 
 	bValid = false;
 
+#ifdef MODDED	// don't allow building canals on hills!
+	if ((GC.getBuildInfo(eBuild)->getRoute() == ROUTE_CANAL) && isHills())
+		return false;
+#endif // MODDED
+
 	// Repairing an Improvement that's been pillaged
 	CvBuildInfo& thisBuildInfo = *GC.getBuildInfo(eBuild);
 	if(thisBuildInfo.isRepair())
@@ -2184,7 +2189,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 
 	if(thisBuildInfo.IsRemoveRoute())
 	{
-		if(!getPlotCity() && getRouteType() != NO_ROUTE)
+		if(!getPlotCity() && getRouteType() != NO_ROUTE
+#ifdef MODDED	// don't allow removing canals!
+			&& getRouteType() != ROUTE_CANAL
+#endif	//MODDED
+			)
 		{
 			if(getOwner() == ePlayer)
 			{
@@ -4057,6 +4066,23 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 	{
 		return true;
 	}
+
+#ifdef MODDED	// Don't move ships away from land tiles automatically, if the plot has a canal
+
+	try
+	{
+		if (unit.getDomainType() == DOMAIN_SEA && unit.plot()->getRouteType() == ROUTE_CANAL)
+		{
+			return true;
+		}
+	}
+	catch (exception e)
+	{
+		DLLUI->AddMessage(0, (PlayerTypes)unit.getOwner(), false, GC.getEVENT_MESSAGE_TIME(), "Sorry, we must move that unit!");
+	}
+	
+
+#endif	//MODDED
 
 	return isCity();
 }
@@ -9832,6 +9858,12 @@ void CvPlot::updateLayout(bool bDebug)
 				eRoadTypeValue = RR_REGULAR;
 			}
 			break;
+#ifdef MODDED	// canal road types cannot be pillaged. they are permanent.
+		case ROUTE_CANAL:
+			eRoadTypeValue = RR_REGULAR;
+			break;
+#endif	//MODDED
+
 		}
 	}
 	else
@@ -9873,7 +9905,11 @@ void CvPlot::updateLayout(bool bDebug)
 			case ROUTE_RAILROAD:
 				eRoadTypeValue = RR_UNDER_CONSTRUCTION;
 				break;
+#ifdef MODDED	// canals under construction behave and look like railroads under construction
+			case ROUTE_CANAL:
+				eRoadTypeValue = RR_UNDER_CONSTRUCTION;
 			}
+#endif	//MODDED
 		}
 	}
 
@@ -10243,6 +10279,11 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 		if(thisUnitDomain == DOMAIN_SEA)
 		{
 			bool bValid = false;
+
+#ifdef MODDED	// allow cities that have water access via a canal to train water units!
+			if (this->getPlotCity()->hasWaterConnected())
+				return true;
+#endif	// MODDED
 
 			for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{

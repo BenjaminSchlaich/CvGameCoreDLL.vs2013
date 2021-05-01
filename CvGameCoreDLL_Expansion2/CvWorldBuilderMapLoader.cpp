@@ -1202,11 +1202,24 @@ bool CvWorldBuilderMapLoader::InitMap()
 
 		if(kPlotData.m_byRoute != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
 		{
-			RouteTypes eRoute;
-			if(kPlotData.m_byRoute == 0)
+			RouteTypes eRoute = NO_ROUTE;
+			
+#ifndef MODDED
+			if (kPlotData.m_byRoute == 0)
 				eRoute = ROUTE_ROAD;
 			else
 				eRoute = ROUTE_RAILROAD;
+#else
+			// if we modded, consider the ROUTE_CANAL route type!
+			if (kPlotData.m_byRoute == 0)
+				eRoute = ROUTE_ROAD;
+			else if (kPlotData.m_byRoute == 1)
+				eRoute = ROUTE_RAILROAD;
+			else if (kPlotData.m_byRoute == 2)
+				eRoute = ROUTE_CANAL;
+			else
+				CvAssert(false);
+#endif	//MODDED
 
 			pkPlot->setRouteType(eRoute);
 

@@ -7,6 +7,7 @@
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 #include "CvDllInterfaces.h"
+#include "ModdedDLL.h"
 
 class CvDllPlot : public ICvPlot1
 {

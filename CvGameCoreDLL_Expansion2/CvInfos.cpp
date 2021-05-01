@@ -4172,6 +4172,7 @@ bool CvRouteInfo::IsIndustrial() const
 {
 	return m_bIndustrial;
 }
+#ifdef MODDED	// add the getter functions for additional xml tags
 //------------------------------------------------------------------------------
 bool CvRouteInfo::IsModern() const
 {
@@ -4182,6 +4183,12 @@ bool CvRouteInfo::AllowsShipPassage() const
 {
 	return m_bAllowsShipPassage;
 }
+//------------------------------------------------------------------------------
+bool CvRouteInfo::RouteMustBeOnFlatland() const
+{
+	return m_bRouteMustBeOnFlatland;
+}
+#endif	// MODDED
 //------------------------------------------------------------------------------
 int CvRouteInfo::getYieldChange(int i) const
 {
@@ -4217,10 +4224,12 @@ bool CvRouteInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	m_bIndustrial = kResults.GetBool("Industrial");
 
-#ifdef	MODDED
+#ifdef	MODDED	// get the new xml tag values from the database
 	m_bModern = kResults.GetBool("Modern");
 
 	m_bAllowsShipPassage = kResults.GetBool("ShipPassage");
+
+	m_bRouteMustBeOnFlatland = kResults.GetBool("RouteMustBeOnFlatland");
 
 #endif //MODDED
 

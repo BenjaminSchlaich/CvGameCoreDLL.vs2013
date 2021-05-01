@@ -2127,11 +2127,25 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// For buyouts, set it up like a new city founded by this player, to avoid liberation later on etc.
 	if(bIsMinorCivBuyout)
 	{
-		pNewCity->setPreviousOwner(NO_PLAYER);
-		pNewCity->setOriginalOwner(m_eID);
-		pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
-		pNewCity->SetEverCapital(false);
-		AwardFreeBuildings(pNewCity);
+#ifdef MODDED	// has nothing to do with the canal: allow liberating city states captured by austria's special marriage skill
+		if (strcmp(GET_PLAYER(eOldOwner).getCivilizationInfo().GetType(), "CIVILIZATION_AUSTRIA"))	// it wasn't an austrian marriage
+#endif	// MODDED
+		{
+			pNewCity->setPreviousOwner(NO_PLAYER);
+			pNewCity->setOriginalOwner(m_eID);
+			pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
+			pNewCity->SetEverCapital(false);
+			AwardFreeBuildings(pNewCity);
+		}
+#ifdef MODDED	// it was an austrian marriage, in which case we DO want the city to be liberatable
+		else
+		{
+			pNewCity->setPreviousOwner(eOldOwner);
+			pNewCity->setOriginalOwner(eOriginalOwner);
+			pNewCity->setGameTurnFounded(iGameTurnFounded);
+			pNewCity->SetEverCapital(bEverCapital);
+		}
+#endif	// MODDED
 	}
 	// Otherwise, set it up using the data from the old city
 	else

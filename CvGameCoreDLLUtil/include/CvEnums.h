@@ -459,6 +459,7 @@ enum DirectionTypes
 	DIRECTION_SOUTHWEST_MASK = 1 << 5,						// DIRECTION_SOUTHWEST,
 	DIRECTION_WEST_MASK = 1 << 6,							// DIRECTION_WEST,
 	DIRECTION_NORTHWEST_MASK = 1 << 7,						// DIRECTION_NORTHWEST,
+
 };
 
 enum FlowDirectionTypes					
@@ -1219,6 +1220,7 @@ enum RouteTypes
 
 	ROUTE_ROAD,
 	ROUTE_RAILROAD,
+	ROUTE_CANAL,
 
 	NUM_ROUTE_TYPES
 };

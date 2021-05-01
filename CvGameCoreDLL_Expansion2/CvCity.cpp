@@ -418,6 +418,25 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		owningPlayer.setFoundedFirstCity(true);
 		owningPlayer.ChangeNumCitiesFounded(1);
 
+// This is no longer neccessary, as we've implemented it at the construction of the game already! (CvGame.cpp -> LN 405)
+/*#ifdef MODDED
+		if (DEBUG_MY_MOD)	// if we're debugging, give the human player some stuff so he can try out the canal feature!
+		{
+			DLLUI->AddMessage(0, eOwner, false, GC.getEVENT_MESSAGE_TIME(), "Founding first city. Give gold and techs cause we debug.");
+
+			if (owningPlayer.isHuman())
+			{
+				owningPlayer.GetTreasury()->SetGoldTimes100(150000);	// give the player some gold.
+
+				// research all technologies
+				for (int iTech = 0; iTech < GC.getNumTechInfos(); iTech++)
+				{
+					GET_TEAM(owningPlayer.getTeam()).setHasTech((TechTypes)iTech, true, (PlayerTypes)iI, true, false);
+				}
+			}
+		}
+#endif	//MODDED*/
+
 		// Free resources under city?
 		for(int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
@@ -581,6 +600,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		chooseProduction();
 	}
+
+	
 }
 
 //	--------------------------------------------------------------------------------
@@ -2013,7 +2034,11 @@ int CvCity::countNumRiverPlots() const
 
 		if(pLoopPlot != NULL)
 		{
-			if(pLoopPlot->isRiver())
+			if(pLoopPlot->isRiver() 
+#ifdef MODDED	// count canal featured plots of a city as river plots
+				|| pLoopPlot->getRouteType() == ROUTE_CANAL
+#endif	// MODDED	
+				)
 			{
 				if(pLoopPlot->getWorkingCity() == this)
 				{
@@ -2745,6 +2770,33 @@ bool CvCity::canJoin() const
 {
 	VALIDATE_OBJECT
 	return true;
+}
+
+bool CvCity::hasWaterConnected() const
+{
+	CvPlot *currentPlot = plot();	// we'll follow the whole canal this way
+	CvPlot *lastPlot = NULL;		// we need to check against where we came from, so we don't go backwards
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)	// iterate over the neighbor plots
+	{
+		if (currentPlot->isWater())	// we've found an end that has a water connection :)
+		{
+			modDebugOFS << "There is a canal next to " << getName() << " that ends up next to water, so we can build water buildings/ units!" << std::endl;
+			return true;
+		}
+		else if ((currentPlot->getNeighboringPlot((DirectionTypes)i) != lastPlot)					// we don't go back
+			&& (currentPlot->getNeighboringPlot((DirectionTypes)i)->getRouteType() == ROUTE_CANAL)	// and there's another canal neighbor! :)
+			)	// we're not at the end of the canal yet
+		{
+			modDebugOFS << "Following canal route: x=" << currentPlot->getX() << " y=" << currentPlot->getY() << std::endl;
+			currentPlot = currentPlot->getNeighboringPlot((DirectionTypes)i);	//
+		}
+		else
+		{
+			modDebugOFS << "There is no canal next to " << getName() << " that ends up next to water, so we can't build water buildings/ units!" << std::endl;
+			modDebugOFS << "The last position was x=" << getX() << ", y=" << getY() << std::endl;
+			return false;	// we're at the end and it isn't a water tile :(
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -13992,21 +14044,33 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 	// Requires coast
 	if(pkBuildingInfo->IsWater())
 	{
-		if(!isCoastal(pkBuildingInfo->GetMinAreaSize()))
+		if(!(isCoastal(pkBuildingInfo->GetMinAreaSize())
+#ifdef MODDED	// a canal next to the city may replace coast access
+			|| hasWaterConnected()
+#endif
+			))
 			return false;
 	}
 
 	// Requires River
 	if(pkBuildingInfo->IsRiver())
 	{
-		if(!(plot()->isRiver()))
+		if(!((plot()->isRiver())
+#ifdef MODDED	// a canal next to the city may replace coast access
+			|| hasWaterConnected()
+#endif
+			))
 			return false;
 	}
 
 	// Requires Fresh Water
 	if(pkBuildingInfo->IsFreshWater())
 	{
-		if(!plot()->isFreshWater())
+		if(!(plot()->isFreshWater()
+#ifdef MODDED	// a canal next to the city may replace coast access
+			|| hasWaterConnected()
+#endif
+			))
 			return false;
 	}
 

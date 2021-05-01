@@ -21,6 +21,7 @@
 #include "FAutoVector.h"
 
 #include "CvPreGame.h"
+#include "ModdedDLL.h"
 
 // 0 = center of city, 1-6 = the edge of city on points, 7-12 = one tile out
 #define NUM_CITY_BUILDING_DISPLAY_SLOTS (13)
@@ -104,6 +105,11 @@ public:
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool canJoin() const;
+
+#ifdef MODDED
+	// add a function to check whether the city has a connection to water by a canal
+	bool hasWaterConnected() const;
+#endif
 
 	bool IsFeatureSurrounded() const;
 	void SetFeatureSurrounded(bool bValue);

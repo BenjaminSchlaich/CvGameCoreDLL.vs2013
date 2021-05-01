@@ -351,6 +351,7 @@ void* operator new(size_t uiSize, FFastAllocator< T, bPODType, AllocPool, nSubID
 ////////////////////////////////////////////////////////////////////////
 template< 
 	class T,
+	bool bPODType = false,
 	unsigned int AllocPool = c_eMPoolTypeContainer, 
 	unsigned int nSubID = 0,
 	class BASE_ALLOC = typename BaseVector< T, bPODType >::FDefaultFastVectorAllocator
@@ -599,12 +600,12 @@ protected:
 	T* m_pData;
 
 	template< class T, unsigned int AllocPool, unsigned int nSubID, class BASE_ALLOC >
-	friend void* operator new( size_t uiSize, FFixedBlockAllocator< T, AllocPool, nSubID, BASE_ALLOC >& kAlloc );
+	friend void* operator new( size_t uiSize, FFixedBlockAllocator< T, false, AllocPool, nSubID, BASE_ALLOC >& kAlloc );
 };
 
 // Placement new on a FFastAllocator allows allocation and construction to be combined.
 template< class T, unsigned int AllocPool, unsigned int nSubID, class BASE_ALLOC >
-void* operator new(size_t uiSize, FFixedBlockAllocator< T, AllocPool, nSubID, BASE_ALLOC >& kAlloc )
+void* operator new(size_t uiSize, FFixedBlockAllocator< T, false, AllocPool, nSubID, BASE_ALLOC >& kAlloc )
 {
 	if( kAlloc.m_uiSize == kAlloc.m_uiCapacity )
 	{

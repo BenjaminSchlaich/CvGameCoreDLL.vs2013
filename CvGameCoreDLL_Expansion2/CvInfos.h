@@ -18,7 +18,6 @@
 #define CV_INFO_H
 
 #include "CvStructs.h"
-
 #include "ModdedDLL.h"
 
 #include <unordered_map>
@@ -1237,10 +1236,12 @@ public:
 
 	bool IsIndustrial() const;
 
-#ifdef MODDED
+#ifdef MODDED	// define the getter functions for the new xml tags
 	bool IsModern() const;
 
 	bool AllowsShipPassage() const;
+
+	bool RouteMustBeOnFlatland() const;
 #endif	//MODDED
 
 	// Arrays
@@ -1259,10 +1260,12 @@ protected:
 
 	int m_bIndustrial;
 
-#ifdef MODDED
+#ifdef MODDED	// new attributes of the CvRouteInfo class
 	bool m_bModern;
 
 	bool m_bAllowsShipPassage;
+
+	bool m_bRouteMustBeOnFlatland;
 
 #endif //MODDED
 

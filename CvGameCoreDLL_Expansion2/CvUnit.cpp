@@ -2244,7 +2244,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 	switch(eDomain)
 	{
 	case DOMAIN_SEA:
-		if(!enterPlot.isWater() && !canMoveAllTerrain())
+		if(!enterPlot.isWater() && !(canMoveAllTerrain() 
+#ifdef MODDED	// sea units can move through land tiles, if they have a canal feature
+			|| (enterPlot.getRouteType() == ROUTE_CANAL)
+#endif	//MODDED
+			))
 		{
 			if(!enterPlot.isFriendlyCity(*this, true) && !enterPlot.isEnemyCity(*this))
 			{
@@ -8731,6 +8735,19 @@ bool CvUnit::build(BuildTypes eBuild)
 			else if(pkBuildInfo->getRoute() != NO_ROUTE)
 			{
 				eRoute = (RouteTypes) pkBuildInfo->getRoute();
+
+#ifdef MODDED	// if a worker finished building a canal, check in all cities if these can now build water units/buildings by updating the list of buildables
+				if (pkBuildInfo->getRoute() == ROUTE_CANAL)
+				{
+					for (int iLoopCount = 0; iLoopCount < kPlayer.getNumCities(); iLoopCount++)
+					{
+						CvCity *kCurrentCity = kPlayer.getCity(iLoopCount);
+						GC.GetEngineUserInterface()->setDirty(InterfaceDirtyBits::CityScreen_DIRTY_BIT, true);
+						GC.GetEngineUserInterface()->setDirty(InterfaceDirtyBits::CityInfo_DIRTY_BIT, true);
+						DLLUI->updateCityScreen();
+					}
+				}
+#endif MODDED	// MODDED
 			}
 
 			int iNumResource = 0;

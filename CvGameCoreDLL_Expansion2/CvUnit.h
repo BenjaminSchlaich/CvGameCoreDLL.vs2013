@@ -20,6 +20,7 @@
 #include "CvInfos.h"
 #include "CvPromotionClasses.h"
 #include "CvAStarNode.h"
+#include "ModdedDLL.h"
 
 #define DEFAULT_UNIT_MAP_LAYER 0
 

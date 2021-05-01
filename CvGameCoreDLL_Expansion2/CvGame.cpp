@@ -402,25 +402,33 @@ bool CvGame::init2()
 
 	initScoreCalculation();
 
-#ifdef MODDED
-	// if we're debugging, give the human player some stuff so he can try out the canal feature!
+#ifdef MODDED	// if we're debugging, give the human player some stuff so he can try out the canal feature!
 	if (DEBUG_MY_MOD)
 	{
-		// iterate over all players, giving just the human(s) technology and so on
-		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+		modDebugOFS << "In CvGame.cpp: in init2(): as debugging is enabled, give the player all techs and money" << std::endl;
+		try
 		{
-			CvPlayer& rLoopPlayer = GET_PLAYER((PlayerTypes)iI);
-			if (rLoopPlayer.isHuman())
+			for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)	// iterate over all players, giving just the human(s) technology and so on
 			{
-				rLoopPlayer.GetTreasury()->SetGoldTimes100(1500);	// give the player some gold.
 				
-				// research all technologies
-				for (int iTech = 0; iTech < GC.getNumTechInfos(); iTech++)
+				CvPlayer& rLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+				if (rLoopPlayer.isHuman())
 				{
-					GET_TEAM(rLoopPlayer.getTeam()).setHasTech((TechTypes)iTech, true, (PlayerTypes)iI, true, false);
+					rLoopPlayer.GetTreasury()->SetGoldTimes100(990000);	// give the player some gold.
+
+					// research all technologies
+					for (int iTech = 0; iTech < GC.getNumTechInfos(); iTech++)
+					{
+						GET_TEAM(rLoopPlayer.getTeam()).setHasTech((TechTypes)iTech, true, (PlayerTypes)iI, true, false);
+					}
 				}
 			}
+		}catch(exception e)
+		{
+			modDebugOFS << "Caught an exception in the CvGame.cpp init2() function:" << endl;
+			modDebugOFS << e.what() << endl;
 		}
+		
 	}
 #endif	//MODDED
 

@@ -154,6 +154,9 @@ typedef wchar_t          wchar;
 #include "CvAdvisorCounsel.h"
 #include "CvAdvisorRecommender.h"
 
+// excluded to avoid multiple definition linker issues
+//#include "ModdedDLL.h"
+
 using namespace fastdelegate;
 
 #ifdef FINAL_RELEASE

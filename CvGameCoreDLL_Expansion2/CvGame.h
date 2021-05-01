@@ -19,6 +19,7 @@
 #include <CvLocalization.h>
 
 #include "CvDealClasses.h"
+#include "ModdedDLL.h"
 
 class CvPlot;
 class CvCity;
